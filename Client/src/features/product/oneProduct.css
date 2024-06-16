@@ -1,0 +1,80 @@
+:root {
+  --primary-color: #007185;
+  --secondary-color: #fbd815;
+  --secondary-hover-color: #eecf1d;
+  --danger-color: red;
+  --light-color: #fff;
+  --dark-color: #000;
+}
+/* Fruit image styles */
+
+.fruite-img{
+  max-height: 400px;
+  min-height: 400px;
+  object-fit: cover;
+  /* display: flex; */
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  
+}
+
+/* Product styles */
+
+.product {
+  flex-basis: 33.33%;
+  margin-bottom: 5rem;
+  text-align: center;
+
+  h4 {
+    color: #007185;
+    font-weight: 700;
+    line-height: 20px;
+    margin: 0;
+  }
+
+  img {
+    height: 6rem;
+  }
+
+  input[type="button"] {
+    background-color: var(--secondary-color);
+    width: 13rem;
+    padding: 0.5rem;
+    font-size: 1.1em;
+    border-radius: 25px;
+    border: 1px solid #D5D9D9;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    
+    &:hover:not([disabled]) {
+      background-color: var(--secondary-hover-color);
+    }
+
+    &:disabled {
+      opacity: .5;
+      background-color: lightgray;
+      cursor: not-allowed;
+    }
+  }
+}
+
+/* Media queries for responsiveness */
+
+@media (max-width: 767px) {
+  .fruite-img {
+    flex-basis: 50%;
+  }
+}
+
+@media (max-width: 400px) {
+  .fruite-img {
+    flex-basis: 100%;
+  }
+}
+
+/* Error message styles */
+.error {
+  color: var(--danger-color);
+  text-align: center;
+}

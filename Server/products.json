@@ -1,0 +1,55 @@
+[
+    {
+        "id": 1,
+        "name": "Lion",
+        "description": "חלב מפוסטר 3%",
+        "imgUrl": "https://m.media-amazon.com/images/I/81OUGWvNT9L._AC_UY1000_.jpg",
+        "content": "100 גרם",
+        "price": 5.2,
+        "isCooling": true,
+        "prodDate": "10-10-2022"
+    },
+    {
+        "id": 5,
+        "name": "Teddy Bear",
+        "description": "חטיף בןטנים",
+        "imgUrl": "https://i5.walmartimages.com/seo/Rubie-s-Newborn-Infant-Teddy-Bear-Costume_79165922-540e-4e19-852d-9cef47e97060_1.7bf73ef4860710f32f8b08e01461174f.jpeg",
+        "content": "80 גרם",
+        "price": 7.2,
+        "isCooling": false,
+        "company": "אסם",
+        "prodDate": "5-5-2022"
+    },
+    {
+        "name": "Lion ",
+        "description": "Lion Dress up",
+        "imgUrl": "https://m.media-amazon.com/images/I/81OUGWvNT9L._AC_UY1000_.jpg",
+        "price": "90",
+        "qty": 0,
+        "id": 9
+    },
+    {
+        "name": "Bear",
+        "description": "Bear Outfit",
+        "imgUrl": "https://ae01.alicdn.com/kf/S5fffe79edb074c0fa5c8f0f319289aceW/2024-romper.jpg_.webp",
+        "price": "120",
+        "qty": 0,
+        "id": 10
+    },
+    {
+        "name": "Duck",
+        "description": "duck outfit",
+        "imgUrl": "https://m.media-amazon.com/images/I/71YeegO50ML._AC_UY1000_.jpg",
+        "price": "300",
+        "qty": 0,
+        "id": 11
+    },
+    {
+        "name": "Bunny",
+        "description": "Cute Bunny outfit for baby",
+        "imgUrl": "data:image/gif;base64,R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
+        "price": "200",
+        "qty": 0,
+        "id": 12
+    }
+]
