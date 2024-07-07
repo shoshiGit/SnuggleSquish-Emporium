@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { addUser, getAllUsers, login } from "../controllers/userControl.js";
-import { authAdmin, authUser } from "../middleware/auth.js";
+import { addUser, getAllUsers, login } from "../controllers/user.js";
+import { authAdmin } from "../middleware/authentication.js";
 
-const userRoute = Router();;
+const userRoute = Router();
 
-userRoute.post('/',addUser);
+userRoute.post('/', addUser);
 userRoute.post('/login', login);
-userRoute.get("/", getAllUsers);
+userRoute.get("/", authAdmin, getAllUsers);
 
 
 export default userRoute;

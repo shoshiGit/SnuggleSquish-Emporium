@@ -1,53 +1,76 @@
 
+import Joi from "joi";
 import { productModel } from "../models/product.js"
 //$gte. $gte selects the documents where the value of the specified field is greater than or equal to (i.e. >= ) a specified value (e.g. value .) 
+const productSchemaJ = Joi.object({
+    name: Joi.string().required(),
+    description: Joi.string().required().min(0),
+    price: Joi.number().required(),
+    productionDate: Joi.date().required(),
+    imageUrl: Joi.string().uri().required(),
+    stoch: Joi.number().default(0).min(0)
+});
 
 
+// Get all products with filtering and pagination
 const getAllProducts = async (req, res) => {
-    let { search, name, description, maxPrice, minPrice,startDate,endDate,sortBy,limit } = req.query;
-    let perPage = parseInt(req.query.perPage) || 3;
-    let page = parseInt(req.query.page) || 1;
-    //let ex = /ava{1,6}$// 'i' for case-insensitive search
-    let ex1 = new RegExp(`${search}`, 'i');//המחרוזת תיהיה חייבת להסתיים ב
-
     try {
-        console.log(name)
+        const { name, description, minPrice, maxPrice, startDate, endDate, page = 1, limit = 10 } = req.body;
+        const query = {}
         let filter = {};
-        if (search) filter.name = ex1;
-
-        //build a filter based on query parameters
-        if (name) filter.name = new RegExp(name, 'i');;
-        if (description) filter.description = new RegExp(description, 'i');
+        if (name) query.name = new RegExp(name, 'i');
+        if (description) query.description = new RegExp(description, 'i');
         if (minPrice || maxPrice) {
-            filter.price = {};
-            if (minPrice) filter.price.$gte = parseFloat(minPrice);
-            if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
-        }
-        if (startDate || endDate) {
-            filter.manufactureDate = {};
-            if (startDate) filter.manufactureDate.$gte = new Date(startDate);
-            if (endDate) filter.manufactureDate.$lte = new Date(endDate);
-        }
+            query.price = {};
+            if (minPrice) query.price.$gte = parseFloat(minPrice);
+            if (maxPrice) query.price.$lte = parseFloat(maxPrice);
+        };
+        if (startDate) query.manufactureDate = { ...query.manufactureDate, $gte: new Date(startDate) };
+        if (endDate) query.manufactureDate = { ...query.manufactureDate, $lte: new Date(endDate) };
 
+        const products = await productModel.find(query)
+            .limit(parseInt(limit))
+            .skip((page - 1) * limit);
+        // .exec();
+        const count = await productModel.countDocuments(query);
+
+        res.json({
+            products,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page,
+        });
+        // if (search) filter.name = ex1;
+        //build a filter based on query parameters
+        // if (name) filter.name = new RegExp(name, 'i');;
+        // if (description) filter.description = new RegExp(description, 'i');
+        // if (minPrice || maxPrice) {
+        //     filter.price = {};
+        //     if (minPrice) filter.price.$gte = parseFloat(minPrice);
+        //     if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
+        // }
+        // if (startDate || endDate) {
+        //     filter.manufactureDate = {};
+        //     if (startDate) filter.manufactureDate.$gte = new Date(startDate);
+        //     if (endDate) filter.manufactureDate.$lte = new Date(endDate);
+        // }
         //sorting logic
-        let sortOption = {};
-        if (sortBy) sortOption[sortBy] = 1;// 1 for ascending, -1 for descending
-
+        // let sortOption = {};
+        // if (sortBy) sortOption[sortBy] = 1;// 1 for ascending, -1 for descending
         //query product with filtering and pagination
-        const products = await productModel.find(filter)
-            .sort(sortOption)
-            .skip((page - 1) * limit)
-            .limit(parseInt(limit));
+        // const products = await productModel.find(filter)
+        // .sort(sortOption)
+        // .skip((page - 1) * limit)
+        // .limit(parseInt(limit));
 
         //count total products matching the filter
-        const totalProducts = await productModel.countDocuments(filter);
+        // const totalProducts = await productModel.countDocuments(filter);
 
         //returns the products and the pagination information
-        res.status(200).json({
-            products,
-            totalPages: Math.ceil(totalProducts / limit),
-            currentPage: page
-        });
+        // res.status(200).json({
+        //     products,
+        // totalPages: Math.ceil(totalProducts / limit),
+        // currentPage: page
+        // });
     }
     catch (e) { return res.status(500).send(e.message); }
 }
@@ -65,9 +88,10 @@ const getProductById = async (req, res) => {
 }
 
 const AddNewProduct = async (req, res) => {
-    //get the product details from the request body
-    const { name, price, description, imgUrl, manufactureDate, stock, updateType } = req.query;
+    const { name, price, description, imgUrl, manufactureDate, stock, updateType, search } = req.query;
     try {
+        const { error } = productSchemaJ.validate({ name, price, description, manufactureDate, imgUrl, stock });
+        if (error) { return res.status(400).json({ error: error.details[0].message }); }
         let product = await productModel.findOne({ name });
         if (product) {
             if (updateType === 'updateDetails') {
@@ -87,6 +111,9 @@ const AddNewProduct = async (req, res) => {
             const updatedProduct = await product.save();
             return res.status(200).json(updatedProduct);
         } else {
+            const { error } = productSchemaJ.validate(req.body);
+            if (error) return res.status(400).json({ error: error.details[0].message });
+
             const newProduct = new productModel({ name, price, description, imgUrl, manufactureDate, stock });
             const savedProduct = await newProduct.save();
             return res.status(201).json(savedProduct);
@@ -111,10 +138,20 @@ const deleteProduct = async (req, res) => {
         res.status(400).send(e.message);
     }
 }
+
+
 const updateProduct = async (req, res) => {
     try {
         const productId = req.params.id;
-        const updatedProduct = await productModel.findByIdAndUpdate(productId,req.body,{new:true});
+        const updates = req.body;
+        const allowedUpdates = ["name", "price", "description", "manufactureDate", "imgUrl", "stock"];
+        const isValidOperation = Object.keys(updates).every(update => allowedUpdates.includes(update));
+
+        if (!isValidOperation) {
+            return res.status(400).json({ error: "Invalid updates!" });
+        }
+
+        const updatedProduct = await productModel.findByIdAndUpdate(productId, updates, { new: true });
         if (!updatedProduct)
             return res.status(404).send("Product not Found");
         res.status(200).json(updatedProduct);

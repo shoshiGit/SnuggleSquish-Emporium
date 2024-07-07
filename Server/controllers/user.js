@@ -1,7 +1,7 @@
 import { compare } from "bcrypt";
 import { userModel } from "../models/user.js";
 import bcrypt from "bcryptjs"
-import { generateToken } from "../config/generateToken.js";
+import { generateToken } from "../config/jwt.js";
 import Joi from "joi";
 
 const sighnupSchema = Joi.object({
